@@ -527,4 +527,30 @@ const boot=()=>{install2D();installStudyChoices();installLocalLeaderboard();if(p
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',wire,{once:true}); else wire();
 })();
 </script>
+<script>
+/* Practical Hub startup watchdog: prevent a stuck intro from leaving a blank page. */
+(()=>{
+ const recover=()=>{
+  const intro=document.getElementById('phIntro');
+  const setup=document.getElementById('phSetup');
+  const main=document.getElementById('phMain');
+  const screen=document.getElementById('phScreen');
+  const video=document.getElementById('phIntroVideo');
+  const btn=document.getElementById('phEmergencyEnter');
+  if(!intro||!main) return;
+  const visible=e=>e && getComputedStyle(e).display!=='none';
+  if(visible(main) && screen && screen.textContent.trim()) return;
+  if(visible(intro) && (!video || video.error || video.ended || video.readyState===0 || video.paused)){
+    if(btn){btn.textContent='Enter Practical Hub'; btn.click();}
+    setTimeout(()=>{
+      if(visible(main) && screen && !screen.textContent.trim()){
+        screen.innerHTML='<div style="max-width:700px;margin:24px auto;padding:20px;border:1px solid #36536c;border-radius:16px;background:#142237;color:#eef6ff;font:16px/1.5 system-ui"><h2>Practical Hub could not finish starting</h2><p>The page is published, but one of its startup scripts did not complete. Reload the page once. If this message returns, the HTML needs a JavaScript fix.</p><button onclick="location.reload()" style="padding:12px 16px;border-radius:10px">Reload website</button></div>';
+      }
+    },1200);
+  }
+ };
+ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(recover,9000),{once:true});
+ else setTimeout(recover,9000);
+})();
+</script>
 </body></html>
